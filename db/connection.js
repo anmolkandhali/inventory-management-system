@@ -1,18 +1,19 @@
-// db/connection.js
-const mysql = require('mysql2');
+const mysql = require('mysql');
 
-// Create connection to MySQL database
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',        // XAMPP default
-  password: '',        // Leave blank for XAMPP default
-  database: 'inventory_db' // Your database name
+const db = mysql.createConnection({
+  host: 'sql12.freesqldatabase.com',     // ✅ your database host
+  user: 'sql12786845',                   // ✅ your database username
+  password: '69Uxdk48f4',                // ✅ your database password
+  database: 'sql12785845',               // ✅ your database name
+  port: 3306                             // ✅ port for MySQL
 });
 
-// Connect and show result
-connection.connect((err) => {
-  if (err) throw err;
-  console.log('MySQL Connected!');
+db.connect((err) => {
+  if (err) {
+    console.error('MySQL connection error:', err.message);
+    return;
+  }
+  console.log('✅ Connected to remote MySQL database');
 });
 
-module.exports = connection;
+module.exports = db;
