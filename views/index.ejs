@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inventory Management</title>
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+
+  .welcome-banner {
+    background-color: #007bff;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    margin-bottom: 0;
+  }
+
+  h3.center {
+    margin: 0 0 20px;
+    text-align: center;
+    font-weight: normal;
+    color: #555;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 90%;
+    margin: 20px auto;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  th {
+    background-color: #007bff;
+    color: white;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 12px;
+    text-align: center;
+  }
+
+  input, button {
+    padding: 8px;
+    margin: 4px;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+  }
+
+  button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  .low-stock {
+    background-color: #ffc9c9;
+  }
+
+  .pdf-button {
+    text-align: center;
+    margin: 10px;
+  }
+
+  a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  form {
+    text-align: center;
+    margin: 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="welcome-banner">📦 Inventory Dashboard — Hello, <%= user.username %>!</h1>
+<h3 class="center">Role: <%= user.role.toUpperCase() %></h3>
+
+
+  <div class="center">
+    <a href="/logout">Logout</a>
+  </div>
+
+  <!-- Search Form -->
+  <form method="GET" action="/">
+    <input type="text" name="search" placeholder="Search by name" value="<%= search %>">
+    <button type="submit">Search</button>
+  </form>
+
+  <!-- Only Admins Can Add Products -->
+  <% if (user.role === 'admin') { %>
+    <form action="/add" method="POST">
+      <input type="text" name="name" placeholder="Product Name" required>
+      <input type="number" name="quantity" placeholder="Quantity" required>
+      <input type="number" step="0.01" name="price" placeholder="Price" required>
+      <button type="submit">Add Product</button>
+    </form>
+  <% } %>
+
+  <!-- PDF Download Button -->
+  <div class="center pdf-button">
+    <a href="/download-pdf" target="_blank">
+      <button type="button">Download Inventory as PDF</button>
+    </a>
+  </div>
+
+  <!-- Product Table -->
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Quantity</th>
+      <th>Price ($)</th>
+      <th>Total Price ($)</th> <!-- New Column -->
+      <th>Added</th>
+      <% if (user.role === 'admin') { %>
+        <th>Actions</th>
+      <% } %>
+    </tr>
+
+    <% products.forEach(product => { %>
+      <tr class="<%= product.quantity < 5 ? 'low-stock' : '' %>">
+        <td><%= product.name %></td>
+        <td><%= product.quantity %></td>
+        <td><%= Number(product.price).toFixed(2) %></td>
+        <td><%= `$${(product.quantity * product.price).toFixed(2)}` %></td> <!-- Total Price -->
+        <td><%= new Date(product.created_at).toDateString() %></td>
+
+        <% if (user.role === 'admin') { %>
+        <td>
+          <form action="/edit/<%= product.id %>" method="POST" style="display:inline;">
+            <input type="text" name="name" value="<%= product.name %>" required>
+            <input type="number" name="quantity" value="<%= product.quantity %>" required>
+            <input type="number" step="0.01" name="price" value="<%= product.price %>" required>
+            <button type="submit">Update</button>
+          </form>
+          <a href="/delete/<%= product.id %>" onclick="return confirm('Delete this item?')">Delete</a>
+        </td>
+        <% } %>
+      </tr>
+    <% }) %>
+  </table>
+
+</body>
+</html>
